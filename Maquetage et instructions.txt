@@ -1,0 +1,28 @@
+Contraintes :
+1. Le programme devra gérer les entrées utilisateur de manière robuste (par exemple, vérifier que la saisie correspond à un format valide et qu'il n'y a pas de mouvements illégaux).
+2. Les déplacements de pièces doivent respecter les règles principales des échecs.
+3. Le plateau doit être actualisé et affiché après chaque tour.
+
+Maquetage : 
+
+•Les joueurs sont à définir : 
+	-Les définir. (utiliser un enum pour la lisibilité)
+
+•Position utilisateur: 
+	-Demandez des input en forme de int (la position de la pièce -> lui dire le type de pièce). demander ensuite de donner une seconde position (ATTENTION, faire vérifier la légitimité de la position) ou de cancel (si cancel, récursivité)
+	-Vérifiez si les input sont valides. (ne pas dépasser du board) -> le reste se fera sur les pièces.
+
+•Position pièce :	 
+	-Voir quelle pièce est sur cette position
+	-Gérer la capacité de déplacement des pièces : 1 fonction par pièce. (une reine c'est une tour et un fou)
+	-Suivant le type de la pièce, déplacer la pièce suivant les input de l'utilisateurs (appelez la fonction des inputs valides)
+	-Faire aussi les fonctions pour les déplacements exceptionnelles : lorsque le pion mange en diagonale, prise en passant, les deux roques.
+
+•Affichage : 
+	-Générer le board à chaque déplacement de pièces
+	-(Essayer de générer la couleur des pièces en dessous du board, avec le nom du joueur)
+	-(Essayez en cas d'échec et mat, d'effacer le board pour afficher un message au milieu "joueurwin"
+
+// On peut bouger la tour sur soit, sans bouger son axe x, se déplacer sur tout son axe y ou l'inverse
+// On peut bouger le cavalier sur soit 2 cases des x et 1 case en y (soit x+2 ou x-2 et y+1 ou y -1) soit l'inverse
+// On peut bouger la reine comme on bouge un fou et une tour
