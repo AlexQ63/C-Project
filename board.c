@@ -4,6 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*// fonction qui va me permettre d'effacer les /n et les retours "ctrl+D" (stdin) des scanf que j'utilise.
+void clearBuffer() {
+    int c = 0;
+    while (c != '\n' && c != EOF)
+    {
+        c = getchar();
+    }
+}*/
+
 void deleteBoard(PieceInBoard **board) {
     // Free all row before board
     for (int y = 0; y < 8; y++) {
@@ -91,6 +100,7 @@ PieceInBoard **generateEmptyBoard() {
         PieceInBoard *row = malloc(sizeof(PieceInBoard) * 8);
         for (int j = 0; j < 8; j++) {
             row[j].type = EMPTY;
+            row[j].hasMoved = FALSE;
         }
         board[i] = row;
     }
@@ -98,13 +108,13 @@ PieceInBoard **generateEmptyBoard() {
     return board;
 }
 
-_Bool positionIsInTheBoard(int x, int y) {
-    if (!( A < x && x <= H)) {
-        printf("x = %d est hors limites\n", x);
+_Bool positionIsInTheBoard(Column x, int y) {
+    if (!( A - 1 <= x && x <= H - 1)) {
+        printf("x = %c est hors limites\n", x);
         return FALSE;
     }
 
-    if (!(1 < y && y <= 8)) {
+    if (!(0 <= y && y <= 7)) {
         printf("y = %d est hors limites\n", y);
         return FALSE;
     }
@@ -113,27 +123,21 @@ _Bool positionIsInTheBoard(int x, int y) {
 }
 
 Position playerAskPosition() {
-    Column x;
-    int y;
-    printf("Enter Position X: ");
-    scanf("%c", &x);
-    printf("Enter Position Y: ");
-    scanf("%d" ,&y);
-
+    char coordonate[3];
+    printf("Enter Position Column and Row (ex : C5) : ");
+    scanf("%2s", coordonate);
+    /*clearBuffer();*/
     Position pos;
-    pos.x = x;
-    pos.y = y;
-
+    pos.x = coordonate[0] - 'A';
+    pos.y = coordonate[1] - '1';
     return pos;
 }
 
 void playerPlay(Player player, PieceInBoard **pieceBoard) {
     Position start = playerAskPosition();
-    int startX = start.x;
+    Column startX = start.x;
     int startY = start.y;
-    printf("startX = %d, startY = %d\n", startX, startY);
-
-    // ascii problème + mettre une boucle pour reset la fonction ( ou voir comment reset de manière propre -> ici, seul le y est pris en compte)
+    // mettre une boucle pour reset la fonction ( ou voir comment reset de manière propre -> ici, seul le y est pris en compte)
     if (positionIsInTheBoard(startX, startY)) {
         displayWhichPiece(pieceBoard, startX, startY);
     }
@@ -149,10 +153,12 @@ void playerPlay(Player player, PieceInBoard **pieceBoard) {
     }
     char *answer = defineNextPlay();
     if (strcmp(answer, "no") == 0) {
+        printf("You have to play again. Select the first coordinate : ");
         playerPlay(player, pieceBoard);
     }
+    free(answer);
     Position end = playerAskPosition();
-    int endX = end.x;
+    Column endX = end.x;
     int endY = end.y;
 
     pieceIsPlaying(pieceBoard, startX, startY, endX, endY, player);

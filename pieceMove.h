@@ -5,6 +5,17 @@
 #include "player.h"
 
 typedef enum {
+    A = 1,
+    B,
+    C,
+    D,
+    E,
+    F,
+    G,
+    H
+} Column;
+
+typedef enum {
     FALSE,
     TRUE
   } Bool;
@@ -14,26 +25,22 @@ typedef struct {
     Bool hasMoved;
 } PieceInBoard;
 
-void pieceSetState(PieceInBoard **board);
+void pieceMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY);
 
-void pieceMove(PieceInBoard **pieceBoard, int startX, int startY, int endX, int endY);
+_Bool pawnCanMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY);
 
-void pieceChangeState(PieceInBoard **pieceBoard, int startX, int startY);
+void pawnMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player);
 
-_Bool pawnCanMove(PieceInBoard **pieceBoard, int startX, int startY, int endX, int endY);
+_Bool bishopCanMove(Column startX, int startY, Column endX, int endY);
 
-void pawnMove(PieceInBoard **pieceBoard, int startX, int startY, int endX, int endY, Player player);
+void bishopMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player);
 
-_Bool bishopCanMove(int startX, int startY, int endX, int endY);
+_Bool kingCanMove(Column startX, int startY, Column endX, int endY);
 
-void bishopMove(PieceInBoard **pieceBoard, int startX, int startY, int endX, int endY, Player player);
+void kingMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player);
 
-_Bool kingCanMove(int startX, int startY, int endX, int endY);
+void displayWhichPiece(PieceInBoard **pieceBoard, Column x, int y);
 
-void kingMove(PieceInBoard **pieceBoard, int startX, int startY, int endX, int endY, Player player);
-
-void displayWhichPiece(PieceInBoard **pieceBoard, int x, int y);
-
-void pieceIsPlaying(PieceInBoard **pieceBoard, int startX, int startY, int endX, int endY, Player player);
+void pieceIsPlaying(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player);
 
 #endif //PIECEMOVE_H

@@ -8,7 +8,7 @@ int main() {
     PieceInBoard **board = generateEmptyBoard();
     resetBoardPiece(board);
     displayBoard(board);
-    deleteBoard(board);
+    /*deleteBoard(board);*/
 
     Player p1 = PLAYER1;
     Player p2 = PLAYER2;
