@@ -1,0 +1,11 @@
+# Ignorer les fichiers compilés en C
+*.o
+*.out
+*.exe
+C-project/
+cmake-build-debug/
+.idea/
+
+# Ignorer les fichiers IDE
+.vscode/
+.idea/
