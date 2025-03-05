@@ -22,7 +22,11 @@ void resetBoardPiece(PieceInBoard **board);
 
 void displayBoard(PieceInBoard **board);
 
+void **displayNewBoard(PieceInBoard ** board);
+
 Position playerAskPosition();
+
+void uppercase (char *string);
 
 _Bool positionIsInTheBoard(Column x, int y);
 

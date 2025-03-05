@@ -18,6 +18,11 @@ typedef enum {
     BLACK_ROOK,
 } Piece;
 
+typedef enum {
+    WHITE_TEAM,
+    BLACK_TEAM
+} Team;
+
 char pieceToString(Piece piece);
 
 #endif //PIECE_H

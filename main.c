@@ -14,7 +14,13 @@ int main() {
     Player p2 = PLAYER2;
 
     playerPlay(p1, board);
+    displayNewBoard(board);
     playerPlay(p2, board);
+    displayNewBoard(board);
+    playerPlay(p1, board);
+    displayNewBoard(board);
+    playerPlay(p2, board);
+    displayNewBoard(board);
 
     return 0;
 }

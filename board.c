@@ -101,11 +101,72 @@ PieceInBoard **generateEmptyBoard() {
         for (int j = 0; j < 8; j++) {
             row[j].type = EMPTY;
             row[j].hasMoved = FALSE;
+            row[j].isAlive = TRUE;
         }
         board[i] = row;
     }
 
     return board;
+}
+
+void **displayNewBoard(PieceInBoard ** board) {
+    printf("  +---+---+---+---+---+---+---+---+\n");
+
+    for (int i = 7; i >= 0; i--) {
+        printf("%d |", i + 1);
+
+        for (int j = 0; j < 8; j++) {
+            printf("%c | ", pieceToString(board[j][i].type));
+        }
+
+        printf("\n  +---+---+---+---+---+---+---+---+\n");
+    }
+    printf("    A   B   C   D   E   F   G   H\n");
+}
+
+void displayWhichPiece(PieceInBoard **pieceBoard, Column x, int y) {
+    switch (pieceBoard[x][y].type) {
+        case WHITE_PAWN:
+            printf("You have select : WHITE_PAWN ");
+        break;
+        case WHITE_KING:
+            printf("You have select : WHITE_KING ");
+        break;
+        case WHITE_QUEEN:
+            printf("You have select : WHITE_QUEEN ");
+        break;
+        case WHITE_BISHOP:
+            printf("You have select : WHITE_BISHOP ");
+        break;
+        case WHITE_KNIGHT:
+            printf("You have select : WHITE_KNIGHT ");
+        break;
+        case WHITE_ROOK:
+            printf("You have select : WHITE_ROOK ");
+        break;
+        case BLACK_PAWN:
+            printf("You have select : BLACK_PAWN ");
+        break;
+        case BLACK_KING:
+            printf("You have select : BLACK_KING ");
+        break;
+        case BLACK_QUEEN:
+            printf("You have select : BLACK_QUEEN ");
+        break;
+        case BLACK_BISHOP:
+            printf("You have select : BLACK_BISHOP ");
+        break;
+        case BLACK_KNIGHT:
+            printf("You have select : BLACK_KNIGHT ");
+        break;
+        case BLACK_ROOK:
+            printf("You have select : BLACK_ROOK ");
+        break;
+        default:
+            printf("You have select : NOTHING ");
+        break;
+        //TODO faire une vrai gestion d'erreur ici, car on peut selectionner NOTHING et jouer avec.
+    }
 }
 
 _Bool positionIsInTheBoard(Column x, int y) {
@@ -122,10 +183,22 @@ _Bool positionIsInTheBoard(Column x, int y) {
     return TRUE;
 }
 
+void uppercase(char *string){
+    int i = 0;
+
+    while (string[i] != '\0')
+    {
+        if (string[i]  >= 97 &&  string[i] <= 122)
+            string[i] = string[i] - 32;
+        i++;
+    }
+}
+
 Position playerAskPosition() {
     char coordonate[3];
     printf("Enter Position Column and Row (ex : C5) : ");
     scanf("%2s", coordonate);
+    uppercase(coordonate);
     /*clearBuffer();*/
     Position pos;
     pos.x = coordonate[0] - 'A';
@@ -134,13 +207,26 @@ Position playerAskPosition() {
 }
 
 void playerPlay(Player player, PieceInBoard **pieceBoard) {
+    if (player == PLAYER1) {
+        printf("Player 1 turn, let's play.\n");
+    }
+    else if (player == PLAYER2) {
+        printf("Player 2 turn, let's play.\n");
+    }
+
     Position start = playerAskPosition();
     Column startX = start.x;
     int startY = start.y;
-    // mettre une boucle pour reset la fonction ( ou voir comment reset de manière propre -> ici, seul le y est pris en compte)
+
     if (positionIsInTheBoard(startX, startY)) {
+        if (playerPlayHisPiece(pieceBoard, startX, startY, player) == FALSE) {
+            printf("You have to play again. \n");
+            // Voir pour reset le start.x et le start.y car cela fait planter le programme.
+            playerPlay(player, pieceBoard);
+        }
         displayWhichPiece(pieceBoard, startX, startY);
     }
+
     else {
         printf("Invalid position\n, put another position in A - H and 1 - 8");
         if (player == PLAYER1 || player == PLAYER2) {
@@ -153,7 +239,7 @@ void playerPlay(Player player, PieceInBoard **pieceBoard) {
     }
     char *answer = defineNextPlay();
     if (strcmp(answer, "no") == 0) {
-        printf("You have to play again. Select the first coordinate : ");
+        printf("You have to play again, from the start. Select the first coordinate : ");
         playerPlay(player, pieceBoard);
     }
     free(answer);
@@ -163,3 +249,4 @@ void playerPlay(Player player, PieceInBoard **pieceBoard) {
 
     pieceIsPlaying(pieceBoard, startX, startY, endX, endY, player);
 }
+
