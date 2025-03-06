@@ -7,8 +7,7 @@
 /*// fonction qui va me permettre d'effacer les /n et les retours "ctrl+D" (stdin) des scanf que j'utilise.
 void clearBuffer() {
     int c = 0;
-    while (c != '\n' && c != EOF)
-    {
+    while (c != '\n' && c != EOF) {
         c = getchar();
     }
 }*/
@@ -105,11 +104,10 @@ PieceInBoard **generateEmptyBoard() {
         }
         board[i] = row;
     }
-
     return board;
 }
 
-void **displayNewBoard(PieceInBoard ** board) {
+void displayNewBoard(PieceInBoard **board) {
     printf("  +---+---+---+---+---+---+---+---+\n");
 
     for (int i = 7; i >= 0; i--) {
@@ -170,13 +168,13 @@ void displayWhichPiece(PieceInBoard **pieceBoard, Column x, int y) {
 }
 
 _Bool positionIsInTheBoard(Column x, int y) {
-    if (!( A - 1 <= x && x <= H - 1)) {
-        printf("x = %c est hors limites\n", x);
+    if (x < A - 1 || x > H - 1) {
+        printf("x = %c is out of range\n", x);
         return FALSE;
     }
 
-    if (!(0 <= y && y <= 7)) {
-        printf("y = %d est hors limites\n", y);
+    if (y < 0 || y > 7) {
+        printf("y = %d is out of range\n", y);
         return FALSE;
     }
 
@@ -186,8 +184,7 @@ _Bool positionIsInTheBoard(Column x, int y) {
 void uppercase(char *string){
     int i = 0;
 
-    while (string[i] != '\0')
-    {
+    while (string[i] != '\0') {
         if (string[i]  >= 97 &&  string[i] <= 122)
             string[i] = string[i] - 32;
         i++;
@@ -218,25 +215,22 @@ void playerPlay(Player player, PieceInBoard **pieceBoard) {
     Column startX = start.x;
     int startY = start.y;
 
-    if (positionIsInTheBoard(startX, startY)) {
-        if (playerPlayHisPiece(pieceBoard, startX, startY, player) == FALSE) {
-            printf("You have to play again. \n");
-            // Voir pour reset le start.x et le start.y car cela fait planter le programme.
-            playerPlay(player, pieceBoard);
-        }
-        displayWhichPiece(pieceBoard, startX, startY);
+    while (!positionIsInTheBoard(startX, startY)) {
+        printf("Invalid position\n, put another position in A - H and 1 - 8\n");
+        start = playerAskPosition();
+        startX = start.x;
+        startY = start.y;
     }
 
-    else {
-        printf("Invalid position\n, put another position in A - H and 1 - 8");
-        if (player == PLAYER1 || player == PLAYER2) {
-            playerPlay(player, pieceBoard);
-        }
-        else {
-            printf("You only can be the Player 1 or the Player 2");
-            return;
-        }
+    while (playerPlayHisPiece(pieceBoard, startX, startY, player) == FALSE) {
+        printf("You have to play again. \n");
+        start = playerAskPosition();
+        startX = start.x;
+        startY = start.y;
     }
+
+    displayWhichPiece(pieceBoard, startX, startY);
+
     char *answer = defineNextPlay();
     if (strcmp(answer, "no") == 0) {
         printf("You have to play again, from the start. Select the first coordinate : ");
@@ -249,4 +243,3 @@ void playerPlay(Player player, PieceInBoard **pieceBoard) {
 
     pieceIsPlaying(pieceBoard, startX, startY, endX, endY, player);
 }
-

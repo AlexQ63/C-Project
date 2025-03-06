@@ -14,6 +14,8 @@ void deleteBoard(PieceInBoard **board);
 
 PieceInBoard **generateEmptyBoard();
 
+void displayNewBoard(PieceInBoard ** board);
+
 void placePiece(PieceInBoard **board, Column x, int y, Piece piece);
 
 char columnToString(Column column);
@@ -21,8 +23,6 @@ char columnToString(Column column);
 void resetBoardPiece(PieceInBoard **board);
 
 void displayBoard(PieceInBoard **board);
-
-void **displayNewBoard(PieceInBoard ** board);
 
 Position playerAskPosition();
 
