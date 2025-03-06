@@ -38,6 +38,29 @@ _Bool playerPlayHisPiece(PieceInBoard **pieceBoard, Column startX, int startY, P
     return FALSE;
 }
 
+
+/*_Bool kingIsEat(PieceInBoard **pieceBoard, Column endX, int endY, Player player) {
+    if (pieceBoard[endX][endY].type == WHITE_KING) {
+        if (definePlayerTeam(player) == BLACK_TEAM) {
+            return TRUE;
+        }
+    } else if (pieceBoard[endX][endY].type == BLACK_KING) {
+        if (definePlayerTeam(player) == WHITE_TEAM){
+            return TRUE;
+        }
+    }
+    return FALSE;
+}*/
+
+/*
+_Bool definePlayerWin(PieceInBoard **pieceBoard, Column startX, int startY, Player player) {
+    if (kingIsEat(pieceBoard, startX, startY, player) == TRUE) {
+        return FALSE;
+    }
+    return TRUE;
+}
+*/
+
 _Bool pieceIsEatable(PieceInBoard **pieceBoard, Column endX, int endY, Player player) {
     if (pieceBoard[endX][endY].type != EMPTY) {
         if (definePlayerTeam(player) == WHITE_TEAM) {
