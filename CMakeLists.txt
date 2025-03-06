@@ -13,4 +13,6 @@ add_executable(C-Project
         board.h
         piece.c
         piece.h
+        game.c
+        game.h
 )
