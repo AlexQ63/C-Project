@@ -72,4 +72,8 @@ void kingMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX,
 
 void pieceIsPlaying(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player);
 
+_Bool canPromotePawn(PieceInBoard **pieceBoard, int endY);
+
+void promotePawn(PieceInBoard **pieceBoard, Column endX, int endY, Player player);
+
 #endif //PIECEMOVE_H

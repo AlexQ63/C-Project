@@ -5,6 +5,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "game.h"
+
 int definePieceTeam (PieceInBoard **pieceBoard, Column startX, int startY) {
     if (1 <= pieceBoard[startX][startY].type && pieceBoard[startX][startY].type <= 6 ) {
         return WHITE_TEAM;
@@ -76,60 +78,48 @@ _Bool canEnPassantCapture(PieceInBoard **pieceBoard, Column startX, int startY, 
         }
     }
 
-    printf("black : %d\n", resultBlack);
-    printf("white : %d\n", resultWhite);
-
     if (resultWhite == 2 && resultBlack == 1) {
         if (startX + 1 >= 1 && startX + 1 <= 8) {
             if (pieceBoard[startX + 1][startY].type == WHITE_PAWN) {
-                printf("TRUE - Black Pawn is adjacent on the right for En Passant\n");
                 return TRUE;
             }
         }
 
         if (startX - 1 >= 0 && startX - 1 <= 8) {
             if (pieceBoard[startX - 1][startY].type == WHITE_PAWN) {
-                printf("TRUE - Black Pawn is adjacent on the left for En Passant\n");
                 return TRUE;
             }
         }
 
-        printf("FALSE - No Black Pawn adjacent for En Passant\n");
         return FALSE;
     }
 
     if (resultBlack == 2 && resultWhite == 1) {
         if (startX + 1 >= 1 && startX + 1 <= 8) {
             if (pieceBoard[startX + 1][startY].type == BLACK_PAWN) {
-                printf("TRUE - White Pawn is adjacent on the right for En Passant\n");
                 return TRUE;
             }
         }
 
         if (startX - 1 >= 0 && startX - 1 <= 8) {  // Vérification pour la case à gauche
             if (pieceBoard[startX - 1][startY].type == BLACK_PAWN) {
-                printf("TRUE - White Pawn is adjacent on the left for En Passant\n");
                 return TRUE;
             }
         }
 
-        printf("FALSE - No White Pawn adjacent for En Passant\n");
         return FALSE;
     }
 
-    printf("FALSE - No En Passant possible\n");
     return FALSE;
 }
 
 void pawnEatWithEnPassant(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
     if (player == PLAYER1) {
-        printf("DEBUG: White Pawn is capturing via En Passant\n");
         pieceBoard[endX][endY - 1].type = EMPTY;
         pieceBoard[endX][endY - 1].isAlive = FALSE;
     }
 
     else if (player == PLAYER2) {
-        printf("DEBUG: Black Pawn is capturing via En Passant\n");
         pieceBoard[endX][endY + 1].type = EMPTY;
         pieceBoard[endX][endY + 1].isAlive = FALSE;
     }
@@ -457,5 +447,59 @@ void pieceIsPlaying(PieceInBoard **pieceBoard, Column startX, int startY, Column
         default:
             printf("Wrong piece. You have to plaiy again\n");
             break;
+    }
+}
+
+_Bool canPromotePawn(PieceInBoard **pieceBoard, int endY) {
+    if (endY == 7 || endY == 0) {
+        for (int i = A; i < H; i++) {
+            if (pieceBoard[i][endY].type == WHITE_PAWN || pieceBoard[i][endY].type == BLACK_PAWN) {
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;
+}
+
+void promotePawn(PieceInBoard **pieceBoard, Column endX, int endY, Player player) {
+    char * selectPiece = 0;
+    if (canPromotePawn(pieceBoard, endY)) {
+        printf("Congratulation. You can promote your pawn.\n");
+        printf("Select your upgrade : Q : Queen - B : Bishop - R : Rook - K : Knight");
+        scanf("%c", selectPiece);
+        uppercase(selectPiece);
+        if (player == PLAYER1) {
+            if (strcmp(selectPiece, "Q") == 0) {
+            pieceBoard[endX][endY].type = WHITE_QUEEN;
+            }
+
+            if (strcmp(selectPiece, "B") == 0) {
+                pieceBoard[endX][endY].type = WHITE_BISHOP;
+            }
+
+            if (strcmp(selectPiece, "R") == 0) {
+                pieceBoard[endX][endY].type = WHITE_ROOK;
+            }
+
+            if (strcmp(selectPiece, "K") == 0) {
+                pieceBoard[endX][endY].type = WHITE_KNIGHT;
+            }
+        } else {
+            if (strcmp(selectPiece, "Q") == 0) {
+                pieceBoard[endX][endY].type = BLACK_QUEEN;
+            }
+
+            if (strcmp(selectPiece, "B") == 0) {
+                pieceBoard[endX][endY].type = BLACK_BISHOP;
+            }
+
+            if (strcmp(selectPiece, "R") == 0) {
+                pieceBoard[endX][endY].type = BLACK_ROOK;
+            }
+
+            if (strcmp(selectPiece, "K") == 0) {
+                pieceBoard[endX][endY].type = BLACK_KNIGHT;
+            }
+        }
     }
 }
