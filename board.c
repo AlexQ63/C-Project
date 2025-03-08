@@ -122,6 +122,20 @@ void displayNewBoard(PieceInBoard **board) {
     printf("    A   B   C   D   E   F   G   H\n");
 }
 
+_Bool positionIsInTheBoard(Column x, int y) {
+    if (x < A - 1 || x > H - 1) {
+        printf("x = %c is out of range\n", x);
+        return FALSE;
+    }
+
+    if (y < 0 || y > 7) {
+        printf("y = %d is out of range\n", y);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 void displayWhichPiece(PieceInBoard **pieceBoard, Column x, int y) {
     switch (pieceBoard[x][y].type) {
         case WHITE_PAWN:
@@ -165,81 +179,4 @@ void displayWhichPiece(PieceInBoard **pieceBoard, Column x, int y) {
         break;
         //TODO faire une vrai gestion d'erreur ici, car on peut selectionner NOTHING et jouer avec.
     }
-}
-
-_Bool positionIsInTheBoard(Column x, int y) {
-    if (x < A - 1 || x > H - 1) {
-        printf("x = %c is out of range\n", x);
-        return FALSE;
-    }
-
-    if (y < 0 || y > 7) {
-        printf("y = %d is out of range\n", y);
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
-void uppercase(char *string){
-    int i = 0;
-
-    while (string[i] != '\0') {
-        if (string[i]  >= 97 &&  string[i] <= 122)
-            string[i] = string[i] - 32;
-        i++;
-    }
-}
-
-Position playerAskPosition() {
-    char coordonate[3];
-    printf("Enter Position Column and Row (ex : C5) : ");
-    scanf("%2s", coordonate);
-    uppercase(coordonate);
-    /*clearBuffer();*/
-    Position pos;
-    pos.x = coordonate[0] - 'A';
-    pos.y = coordonate[1] - '1';
-    return pos;
-}
-
-void playerPlay(Player player, PieceInBoard **pieceBoard) {
-    if (player == PLAYER1) {
-        printf("Player 1 turn, let's play.\n");
-    }
-    else if (player == PLAYER2) {
-        printf("Player 2 turn, let's play.\n");
-    }
-
-    Position start = playerAskPosition();
-    Column startX = start.x;
-    int startY = start.y;
-
-    while (!positionIsInTheBoard(startX, startY)) {
-        printf("Invalid position\n, put another position in A - H and 1 - 8\n");
-        start = playerAskPosition();
-        startX = start.x;
-        startY = start.y;
-    }
-
-    while (playerPlayHisPiece(pieceBoard, startX, startY, player) == FALSE) {
-        printf("You have to play again. \n");
-        start = playerAskPosition();
-        startX = start.x;
-        startY = start.y;
-    }
-
-    displayWhichPiece(pieceBoard, startX, startY);
-
-    char *answer = defineNextPlay();
-    if (strcmp(answer, "no") == 0) {
-        printf("You have to play again, from the start. Select the first coordinate : ");
-        playerPlay(player, pieceBoard);
-    }
-    free(answer);
-    Position end = playerAskPosition();
-    Column endX = end.x;
-    int endY = end.y;
-
-    pieceIsPlaying(pieceBoard, startX, startY, endX, endY, player);
 }

@@ -38,29 +38,6 @@ _Bool playerPlayHisPiece(PieceInBoard **pieceBoard, Column startX, int startY, P
     return FALSE;
 }
 
-
-/*_Bool kingIsEat(PieceInBoard **pieceBoard, Column endX, int endY, Player player) {
-    if (pieceBoard[endX][endY].type == WHITE_KING) {
-        if (definePlayerTeam(player) == BLACK_TEAM) {
-            return TRUE;
-        }
-    } else if (pieceBoard[endX][endY].type == BLACK_KING) {
-        if (definePlayerTeam(player) == WHITE_TEAM){
-            return TRUE;
-        }
-    }
-    return FALSE;
-}*/
-
-/*
-_Bool definePlayerWin(PieceInBoard **pieceBoard, Column startX, int startY, Player player) {
-    if (kingIsEat(pieceBoard, startX, startY, player) == TRUE) {
-        return FALSE;
-    }
-    return TRUE;
-}
-*/
-
 _Bool pieceIsEatable(PieceInBoard **pieceBoard, Column endX, int endY, Player player) {
     if (pieceBoard[endX][endY].type != EMPTY) {
         if (definePlayerTeam(player) == WHITE_TEAM) {
@@ -74,6 +51,105 @@ _Bool pieceIsEatable(PieceInBoard **pieceBoard, Column endX, int endY, Player pl
         }
     }
     return FALSE;
+}
+
+int lastPawnMove (int startY, int endY) {
+    return abs(endY-startY);
+}
+
+_Bool canEnPassantCapture(PieceInBoard **pieceBoard, Column startX, int startY, int endY) {
+    static int resultBlack = 0;
+    static int resultWhite = 0;
+    if (pieceBoard[startX][startY].type == BLACK_PAWN) {
+        if (lastPawnMove(startY, endY) == 2) {
+            resultBlack = 2;
+        } else {
+            resultBlack = 1;
+        }
+    }
+
+    if (pieceBoard[startX][startY].type == WHITE_PAWN) {
+        if (lastPawnMove(startY, endY) == 2) {
+            resultWhite = 2;
+        } else {
+            resultWhite = 1;
+        }
+    }
+
+    printf("black : %d\n", resultBlack);
+    printf("white : %d\n", resultWhite);
+
+    if (resultWhite == 2 && resultBlack == 1) {
+        if (startX + 1 > 1 && startX + 1 < 8) {
+            if (pieceBoard[startX + 1][startY].type == WHITE_PAWN) {
+                printf("TRUE - Black Pawn is adjacent on the right for En Passant\n");
+                return TRUE;
+            }
+        }
+
+        if (startX - 1 >= 0 && startX - 1 <= 8) {
+            if (pieceBoard[startX - 1][startY].type == WHITE_PAWN) {
+                printf("TRUE - Black Pawn is adjacent on the left for En Passant\n");
+                return TRUE;
+            }
+        }
+
+        printf("FALSE - No Black Pawn adjacent for En Passant\n");
+        return FALSE;
+    }
+
+    if (resultBlack == 2 && resultWhite == 1) {
+        if (startX + 1 > 1 && startX + 1 < 8) {
+            if (pieceBoard[startX + 1][startY].type == BLACK_PAWN) {
+                printf("TRUE - White Pawn is adjacent on the right for En Passant\n");
+                return TRUE;
+            }
+        }
+
+        if (startX - 1 >= 0 && startX - 1 <= 8) {  // Vérification pour la case à gauche
+            if (pieceBoard[startX - 1][startY].type == BLACK_PAWN) {
+                printf("TRUE - White Pawn is adjacent on the left for En Passant\n");
+                return TRUE;
+            }
+        }
+
+        printf("FALSE - No White Pawn adjacent for En Passant\n");
+        return FALSE;
+    }
+
+    printf("FALSE - No En Passant possible\n");
+    return FALSE;
+}
+
+void pawnEatWithEnPassant(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY) {
+    printf("DEBUG: pieceBoard[%d][%d].type = %d (Expected: %d)\n", startX, startY, pieceBoard[startX][startY].type, WHITE_PAWN);
+    if (pieceBoard[startX][startY].type == WHITE_PAWN) {
+        printf("DEBUG: White Pawn is capturing via En Passant\n");
+        pieceBoard[endX][endY - 1].type = EMPTY;
+        pieceBoard[endX][endY - 1].isAlive = FALSE;
+    }
+
+    else if (pieceBoard[startX][startY].type == BLACK_PAWN) {
+        printf("DEBUG: Black Pawn is capturing via En Passant\n");
+        pieceBoard[endX][endY + 1].type = EMPTY;
+        pieceBoard[endX][endY + 1].isAlive = FALSE;
+    }
+
+    else {
+        printf("DEBUG: ERROR - The piece at (%d, %d) is not a pawn!\n", startX, startY);
+    }
+}
+
+_Bool pawnCanEat(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
+    if (pieceIsEatable(pieceBoard, endX, endY, player) == FALSE) {
+        return FALSE;
+    }
+
+    if (!abs(endY - startY) == 1 && abs(endX - startX) == 1){
+        return FALSE;
+    }
+
+    return TRUE;
 }
 
 void pieceEat(PieceInBoard **pieceBoard, Column endX, int endY) {
@@ -101,9 +177,16 @@ _Bool pawnHasNoObstacle(PieceInBoard **pieceBoard, Column startX, int startY, in
         } while (newY != endY);
         return TRUE;
     }
+
+    if (pieceBoard[startX][startY].type == WHITE_PAWN) {
+        newY++;
+    }
+    else if (pieceBoard[startX][startY].type == BLACK_PAWN) {
+        newY--;
+    }
+
     if (pieceBoard[startX][newY].type != EMPTY) {
         printf("You can't move this way, something here.\n");
-        playerPlay(player, pieceBoard);
         return FALSE;
     }
     return TRUE;
@@ -113,7 +196,6 @@ _Bool specificPieceHasNoObstacle(PieceInBoard **pieceBoard, Column endX, int end
     if (pieceBoard[endX][endY].type != EMPTY) {
         if (pieceIsEatable(pieceBoard, endX, endY, player) == FALSE) {
             printf("You can't move this way, something here.\n");
-            playerPlay(player, pieceBoard);
             return FALSE;
         }
     }
@@ -141,7 +223,6 @@ _Bool inLineHasNoObstacle(PieceInBoard **pieceBoard, Column startX, int startY, 
 
             if (pieceBoard[newX][startY].type != EMPTY) {
                 printf("You can't move this way, something here.\n");
-                playerPlay(player, pieceBoard);
                 return FALSE;
             }
 
@@ -164,7 +245,6 @@ _Bool inLineHasNoObstacle(PieceInBoard **pieceBoard, Column startX, int startY, 
 
             if (pieceBoard[startX][newY].type != EMPTY) {
                 printf("You can't move this way, something here.\n");
-                playerPlay(player, pieceBoard);
                 return FALSE;
             }
 
@@ -200,7 +280,6 @@ _Bool diagonalHasNoObstacle(PieceInBoard **pieceBoard, Column startX, int startY
 
         if (pieceBoard[newX][newY].type != EMPTY) {
             printf("You can't move this way, something here.\n");
-            playerPlay(player, pieceBoard);
             return FALSE;
         }
 
@@ -258,6 +337,16 @@ _Bool pawnCanMove(PieceInBoard **pieceBoard, Column startX, int startY, Column e
     	return FALSE;
     }
 
+    if (canEnPassantCapture(pieceBoard, startX, startY, endY)) {
+        pawnEatWithEnPassant(pieceBoard, startX, startY, endX, endY);
+        return TRUE;
+    }
+
+    if (pawnCanEat(pieceBoard, startX, startY, endX, endY, player)) {
+        pieceEat(pieceBoard, endX, endY);
+        return TRUE;
+    }
+
     if (pieceBoard[startX][startY].hasMoved == FALSE) {
         if (pieceHasNoObstacle(pieceBoard,startX,startY,endX,endY, player) == TRUE) {
             if (abs(endY - startY) <= 2 && abs(endY - startY) != 0 && endX == startX) {
@@ -284,7 +373,6 @@ void pawnMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX,
 		}
     } else {
     	printf("Wrong position, try again from the start!\n");
-      	playerPlay(player, pieceBoard);
 	}
 }
 
@@ -309,7 +397,6 @@ void bishopMove(PieceInBoard **pieceBoard, Column startX, int startY, Column end
         	pieceMove(pieceBoard, startX, startY, endX, endY, player);
     	} else {
     	    printf("Wrong position, try again from the start!\n");
-    	    playerPlay(player, pieceBoard);
     	}
 	}
 }
@@ -339,7 +426,6 @@ void kingMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX,
         	pieceMove(pieceBoard, startX, startY, endX, endY, player);
         } else {
             printf("Wrong position, try again from the start!\n");
-            playerPlay(player, pieceBoard);
         }
     }
 }
@@ -374,8 +460,7 @@ void pieceIsPlaying(PieceInBoard **pieceBoard, Column startX, int startY, Column
 
 			break;
         default:
-            printf("Wrong piece. You have to plain again\n");
-	        playerPlay(player, pieceBoard);
+            printf("Wrong piece. You have to plaiy again\n");
             break;
     }
 }

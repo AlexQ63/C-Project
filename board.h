@@ -24,12 +24,8 @@ void resetBoardPiece(PieceInBoard **board);
 
 void displayBoard(PieceInBoard **board);
 
-Position playerAskPosition();
-
-void uppercase (char *string);
-
 _Bool positionIsInTheBoard(Column x, int y);
 
-void playerPlay(Player player, PieceInBoard **pieceBoard);
+void displayWhichPiece(PieceInBoard **pieceBoard, Column x, int y);
 
 #endif //BOARD_H

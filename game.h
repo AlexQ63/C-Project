@@ -3,6 +3,14 @@
 
 #include "board.h"
 
+void uppercase(char *string);
+
+Position playerAskPosition();
+
+_Bool validMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY);
+
+void playerPlay(Player player, PieceInBoard **pieceBoard) ;
+
 _Bool blackKingIsAlive(PieceInBoard **board);
 
 _Bool whiteKingIsAlive(PieceInBoard **board);
