@@ -38,7 +38,7 @@ int lastPawnMove(int startY, int endY);
 
 _Bool canEnPassantCapture(PieceInBoard **pieceBoard, Column startX, int startY, int endY);
 
-void pawnEatWithEnPassant(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY);
+void pawnEatWithEnPassant(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player);
 
 _Bool pawnCanEat(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player);
 

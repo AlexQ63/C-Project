@@ -38,29 +38,6 @@ _Bool playerPlayHisPiece(PieceInBoard **pieceBoard, Column startX, int startY, P
     return FALSE;
 }
 
-
-/*_Bool kingIsEat(PieceInBoard **pieceBoard, Column endX, int endY, Player player) {
-    if (pieceBoard[endX][endY].type == WHITE_KING) {
-        if (definePlayerTeam(player) == BLACK_TEAM) {
-            return TRUE;
-        }
-    } else if (pieceBoard[endX][endY].type == BLACK_KING) {
-        if (definePlayerTeam(player) == WHITE_TEAM){
-            return TRUE;
-        }
-    }
-    return FALSE;
-}*/
-
-/*
-_Bool definePlayerWin(PieceInBoard **pieceBoard, Column startX, int startY, Player player) {
-    if (kingIsEat(pieceBoard, startX, startY, player) == TRUE) {
-        return FALSE;
-    }
-    return TRUE;
-}
-*/
-
 _Bool pieceIsEatable(PieceInBoard **pieceBoard, Column endX, int endY, Player player) {
     if (pieceBoard[endX][endY].type != EMPTY) {
         if (definePlayerTeam(player) == WHITE_TEAM) {
@@ -103,7 +80,7 @@ _Bool canEnPassantCapture(PieceInBoard **pieceBoard, Column startX, int startY, 
     printf("white : %d\n", resultWhite);
 
     if (resultWhite == 2 && resultBlack == 1) {
-        if (startX + 1 > 1 && startX + 1 < 8) {
+        if (startX + 1 >= 1 && startX + 1 <= 8) {
             if (pieceBoard[startX + 1][startY].type == WHITE_PAWN) {
                 printf("TRUE - Black Pawn is adjacent on the right for En Passant\n");
                 return TRUE;
@@ -122,7 +99,7 @@ _Bool canEnPassantCapture(PieceInBoard **pieceBoard, Column startX, int startY, 
     }
 
     if (resultBlack == 2 && resultWhite == 1) {
-        if (startX + 1 > 1 && startX + 1 < 8) {
+        if (startX + 1 >= 1 && startX + 1 <= 8) {
             if (pieceBoard[startX + 1][startY].type == BLACK_PAWN) {
                 printf("TRUE - White Pawn is adjacent on the right for En Passant\n");
                 return TRUE;
@@ -144,22 +121,17 @@ _Bool canEnPassantCapture(PieceInBoard **pieceBoard, Column startX, int startY, 
     return FALSE;
 }
 
-void pawnEatWithEnPassant(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY) {
-    printf("DEBUG: pieceBoard[%d][%d].type = %d (Expected: %d)\n", startX, startY, pieceBoard[startX][startY].type, WHITE_PAWN);
-    if (pieceBoard[startX][startY].type == WHITE_PAWN) {
+void pawnEatWithEnPassant(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
+    if (player == PLAYER1) {
         printf("DEBUG: White Pawn is capturing via En Passant\n");
         pieceBoard[endX][endY - 1].type = EMPTY;
         pieceBoard[endX][endY - 1].isAlive = FALSE;
     }
 
-    else if (pieceBoard[startX][startY].type == BLACK_PAWN) {
+    else if (player == PLAYER2) {
         printf("DEBUG: Black Pawn is capturing via En Passant\n");
         pieceBoard[endX][endY + 1].type = EMPTY;
         pieceBoard[endX][endY + 1].isAlive = FALSE;
-    }
-
-    else {
-        printf("DEBUG: ERROR - The piece at (%d, %d) is not a pawn!\n", startX, startY);
     }
 }
 
@@ -361,7 +333,7 @@ _Bool pawnCanMove(PieceInBoard **pieceBoard, Column startX, int startY, Column e
     }
 
     if (canEnPassantCapture(pieceBoard, startX, startY, endY)) {
-        pawnEatWithEnPassant(pieceBoard, startX, startY, endX, endY);
+        pawnEatWithEnPassant(pieceBoard, startX, startY, endX, endY, player);
         return TRUE;
     }
 
