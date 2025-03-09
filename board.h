@@ -28,4 +28,6 @@ _Bool positionIsInTheBoard(Column x, int y);
 
 void displayWhichPiece(PieceInBoard **pieceBoard, Column x, int y);
 
+Position kingIsHere(PieceInBoard **pieceBoard, Player player);
+
 #endif //BOARD_H

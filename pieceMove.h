@@ -44,7 +44,7 @@ _Bool pawnCanEat(PieceInBoard **pieceBoard, Column startX, int startY, Column en
 
 void pieceEat(PieceInBoard **pieceBoard, Column endX, int endY);
 
-_Bool pawnHasNoObstacle(PieceInBoard **pieceBoard, Column startX, int startY, int endY, Player player);
+_Bool pawnHasNoObstacle(PieceInBoard **pieceBoard, Column startX, int startY, int endY);
 
 _Bool specificPieceHasNoObstacle(PieceInBoard **pieceBoard, Column endX, int endY, Player player);
 
@@ -66,6 +66,12 @@ _Bool bishopCanMove(PieceInBoard **pieceBoard, Column startX, int startY, Column
 
 void bishopMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player);
 
+_Bool rookCanMove (PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player);
+
+void rookMove (Column startX, int startY, Column endX, int endY , PieceInBoard **pieceBoard, Player player);
+
+
+
 _Bool kingCanMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player);
 
 void kingMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player);
@@ -75,5 +81,15 @@ void pieceIsPlaying(PieceInBoard **pieceBoard, Column startX, int startY, Column
 _Bool canPromotePawn(PieceInBoard **pieceBoard, int endY);
 
 void promotePawn(PieceInBoard **pieceBoard, Column endX, int endY, Player player);
+
+_Bool knightCanMove (PieceInBoard **pieceBoard,Column startX, int startY, Column endX, int endY, Player player);
+
+void knightMove (PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player);
+
+_Bool canEatKing(PieceInBoard **pieceBoard, Column endX, int endY, Player player);
+
+_Bool pieceCanEatKing(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player);
+
+
 
 #endif //PIECEMOVE_H

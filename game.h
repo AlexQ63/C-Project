@@ -17,6 +17,8 @@ _Bool whiteKingIsAlive(PieceInBoard **board);
 
 _Bool definePlayerWin(PieceInBoard **pieceBoard);
 
+_Bool playerBeingStalemate(PieceInBoard **pieceBoard, Player player);
+
 void gamePlay();
 
 #endif //GAME_H

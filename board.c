@@ -180,3 +180,35 @@ void displayWhichPiece(PieceInBoard **pieceBoard, Column x, int y) {
         //TODO faire une vrai gestion d'erreur ici, car on peut selectionner NOTHING et jouer avec.
     }
 }
+
+Position kingIsHere(PieceInBoard **pieceBoard, Player player) {
+    Position whiteKingPos;
+    Position blackKingPos;
+    if (player == PLAYER2){
+        for (int i = 7; i >= 0; i--) {
+            for (int j = 0; j < 8; j++) {
+                if (pieceBoard[j][i].type == WHITE_KING) {
+                    whiteKingPos.x = j;
+                    whiteKingPos.y = i;
+                    return whiteKingPos;
+                }
+           }
+        }
+    } else if (player == PLAYER1) {
+        for (int i = 7; i >= 0; i--) {
+            for (int j = 0; j < 8; j++) {
+                if (pieceBoard[j][i].type == BLACK_KING) {
+                    blackKingPos.x = j;
+                    blackKingPos.y = i;
+                    return blackKingPos;
+                }
+            }
+        }
+    }
+}
+
+
+
+/*void kingIsInChess(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
+
+}*/

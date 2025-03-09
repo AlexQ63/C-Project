@@ -64,7 +64,6 @@ void playerPlay(Player player, PieceInBoard **pieceBoard) {
         startX = start.x;
         startY = start.y;
     }
-
     displayWhichPiece(pieceBoard, startX, startY);
 
     char *answer = defineNextPlay();
@@ -77,10 +76,13 @@ void playerPlay(Player player, PieceInBoard **pieceBoard) {
     Column endX = end.x;
     int endY = end.y;
 
+    lastPawnMove(startY, endY);
+
     pieceIsPlaying(pieceBoard, startX, startY, endX, endY, player);
+
+    canEatKing(pieceBoard, endX, endY, player);
     if (validMove(pieceBoard, startX, startY, endX, endY)) {
         canGoNextMove = TRUE;
-        lastPawnMove(startY, endY);
     }
 }
 
@@ -122,6 +124,48 @@ _Bool definePlayerWin(PieceInBoard **pieceBoard) {
     return TRUE;
 }
 
+_Bool playerBeingStalemate(PieceInBoard **pieceBoard, Player player) {
+    for (int row = 7; row >= 0; row--) {
+        for (int col = 0; col < 8; col++) {
+            Column right = row+1;
+            Column left = row-1;
+            int up = col+1;
+            int down = col-1;
+            if (player == PLAYER1 && definePieceTeam(pieceBoard, row, col) == WHITE_TEAM) {
+                printf("white team ok");
+                if (pieceHasNoObstacle(pieceBoard, row, row, right, row, player) == FALSE) {
+                    return FALSE;
+                } else if (pieceHasNoObstacle(pieceBoard, row, row, left, row, player) == FALSE) {
+                    return FALSE;
+                } else if (pieceHasNoObstacle(pieceBoard, row , row, row, up, player) == FALSE) {
+                    return FALSE;
+                } else if (pieceHasNoObstacle(pieceBoard, row, row, row, down, player)== FALSE) {
+                    return FALSE;
+                }
+                printf("PLAYER 1, can't MOVE. It's a stalemate.");
+
+            } else if (player == PLAYER2 && definePieceTeam(pieceBoard, row, col) == BLACK_TEAM) {
+                printf("player 2 ok");
+                if (pieceHasNoObstacle(pieceBoard, row, row, right, row, player) == FALSE) {
+                    return FALSE;
+                } else if (pieceHasNoObstacle(pieceBoard, row, row, left, row, player) == FALSE) {
+                    return FALSE;
+                } else if (pieceHasNoObstacle(pieceBoard, row , row, row, up, player) == FALSE) {
+                    return FALSE;
+                } else if (pieceHasNoObstacle(pieceBoard, row, row, row, down, player) == FALSE) {
+                    return FALSE;
+                }
+                printf("PLAYER 2, can't MOVE. It's a stalemate.");
+                return TRUE;
+            }
+        }
+    }
+    return TRUE;
+}
+
+// Récupérer la fonction "pieceHasNoObstacle et si toute la fonction renvoie faux, alors PAT && canEatKing == FAUX.
+// Pour ça, on va comparer tous les types du board du joueur et voir s'ils peuvent se déplacer ou non, si toutes les pièces ne le peuvent pas alors FAUX.
+
 void gamePlay() {
     PieceInBoard **board = generateEmptyBoard();
     resetBoardPiece(board);
@@ -132,18 +176,26 @@ void gamePlay() {
 
     while (definePlayerWin(board)) {
         while (canGoNextMove == FALSE) {
+            if (playerBeingStalemate(board, p1) == TRUE) {
+                canGoNextMove == FALSE;
+            }
             playerPlay(p1, board);
             displayNewBoard(board);
         }
+
         canGoNextMove = FALSE;
         if (definePlayerWin(board) == FALSE) {
             break;
         }
 
         while (canGoNextMove == FALSE) {
+            if (playerBeingStalemate(board, p2) == TRUE) {
+                canGoNextMove = FALSE;
+            }
             playerPlay(p2, board);
             displayNewBoard(board);
         }
+
         canGoNextMove = FALSE;
     }
 }
