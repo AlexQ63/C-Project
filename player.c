@@ -12,10 +12,3 @@ char * defineNextPlay() {
 
 	return answer;
 }
-
-/*if (player == PLAYER1 || player == PLAYER2) {
-			playerPlay(player, pieceBoard);
-		}
-		else {
-			printf("You only can be the Player 1 or the Player 2");
-			return;*/
