@@ -45,108 +45,8 @@ _Bool playerPlayHisPiece(PieceInBoard **pieceBoard, Column startX, int startY, P
     return FALSE;
 }
 
-_Bool pieceIsEatable(PieceInBoard **pieceBoard, Column endX, int endY, Player player) {
-    if (pieceBoard[endX][endY].type != EMPTY) {
-        if (definePlayerTeam(player) == WHITE_TEAM) {
-            if (definePieceTeam(pieceBoard, endX, endY) == BLACK_TEAM) {
-                return TRUE;
-            }
-        } else {
-            if (definePieceTeam(pieceBoard, endX, endY) == WHITE_TEAM) {
-                return TRUE;
-            }
-        }
-    }
-    return FALSE;
-}
-
-int lastPawnMove (int startY, int endY) {
-    return abs(endY-startY);
-}
-
-_Bool canEnPassantCapture(PieceInBoard **pieceBoard, Column startX, int startY, int endY) {
-    static int resultBlack = 0;
-    static int resultWhite = 0;
-
-    if (pieceBoard[startX][startY].type == BLACK_PAWN) {
-        if (lastPawnMove(startY, endY) == 2) {
-            resultBlack = 2;
-        } else {
-            resultBlack = 1;
-        }
-    }
-
-    if (pieceBoard[startX][startY].type == WHITE_PAWN) {
-        if (lastPawnMove(startY, endY) == 2) {
-            resultWhite = 2;
-        } else {
-            resultWhite = 1;
-        }
-    }
-
-    if (resultWhite == 2 && resultBlack == 1) {
-        if (startX - 1 >= 0 && startX - 1 <= 8) {
-            if (startX - 1 < 1) {
-                if (pieceBoard[startX - 1][startY].type == WHITE_PAWN) {
-                    return TRUE;
-                }
-            } else {
-                return FALSE;
-            }
-        } else if (startX + 1 > 7) {
-            if (pieceBoard[startX + 1][startY].type == WHITE_PAWN) {
-                return TRUE;
-            }
-        } else {
-            return FALSE;
-        }
-
-        return FALSE;
-    }
-
-    if (resultBlack == 2 && resultWhite == 1) {
-        if (startX - 1 >= 0 && startX - 1 <= 8) {
-            if (startX - 1 < 1) {
-                if (pieceBoard[startX - 1][startY].type == BLACK_PAWN) {
-                    return TRUE;
-                }
-            } else {
-                return FALSE;
-            }
-        } else if (startX + 1 > 7) {
-            if (pieceBoard[startX + 1][startY].type == BLACK_PAWN) {
-                return TRUE;
-            }
-        } else {
-            return FALSE;
-        }
-    }
-    return FALSE;
-}
-
-void pawnEatWithEnPassant(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
-    if (player == PLAYER1) {
-        pieceBoard[endX][endY - 1].type = EMPTY;
-        pieceBoard[endX][endY - 1].isAlive = FALSE;
-    }
-
-    else if (player == PLAYER2) {
-        pieceBoard[endX][endY + 1].type = EMPTY;
-        pieceBoard[endX][endY + 1].isAlive = FALSE;
-    }
-}
-
-_Bool pawnCanEat(Column startX, int startY, Column endX, int endY) {
-    if (!(abs(endY - startY) == 1 && abs(endX - startX) == 1)) {
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
-void pieceEat(PieceInBoard **pieceBoard, Column endX, int endY) {
-        pieceBoard[endX][endY].isAlive = FALSE;
-        pieceBoard[endX][endY].type = EMPTY;
+void pieceChangeState(PieceInBoard **pieceBoard, Column startX, int startY) {
+    pieceBoard[startX][startY].hasMoved = TRUE;
 }
 
 _Bool pawnHasNoObstacle(PieceInBoard **pieceBoard, Column startX, int startY, int endY) {
@@ -294,7 +194,7 @@ _Bool diagonalHasNoObstacle(PieceInBoard **pieceBoard, Column startX, int startY
     return TRUE;
 }
 
-_Bool pieceHasNoObstacle(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
+_Bool hubPieceHasNoObstacle(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
     switch (pieceBoard[startX][startY].type) {
         case WHITE_PAWN:
         case BLACK_PAWN:
@@ -319,11 +219,31 @@ _Bool pieceHasNoObstacle(PieceInBoard **pieceBoard, Column startX, int startY, C
         case WHITE_ROOK:
         case BLACK_ROOK:
             return inLineHasNoObstacle(pieceBoard, startX, startY, endX, endY, player);
-        //TODO Attention, prévoir pour les roques
+
         default:
             printf("Wrong piece\n");
             return FALSE;
     }
+}
+
+_Bool pieceIsEatable(PieceInBoard **pieceBoard, Column endX, int endY, Player player) {
+    if (pieceBoard[endX][endY].type != EMPTY) {
+        if (definePlayerTeam(player) == WHITE_TEAM) {
+            if (definePieceTeam(pieceBoard, endX, endY) == BLACK_TEAM) {
+                return TRUE;
+            }
+        } else {
+            if (definePieceTeam(pieceBoard, endX, endY) == WHITE_TEAM) {
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;
+}
+
+void pieceEat(PieceInBoard **pieceBoard, Column endX, int endY) {
+    pieceBoard[endX][endY].isAlive = FALSE;
+    pieceBoard[endX][endY].type = EMPTY;
 }
 
 void pieceMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player){
@@ -334,8 +254,12 @@ void pieceMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX
 	pieceBoard[startX][startY].type = EMPTY;
 }
 
-void pieceChangeState(PieceInBoard **pieceBoard, Column startX, int startY) {
-	pieceBoard[startX][startY].hasMoved = TRUE;
+_Bool pawnCanEat(Column startX, int startY, Column endX, int endY) {
+    if (!(abs(endY - startY) == 1 && abs(endX - startX) == 1)) {
+        return FALSE;
+    }
+
+    return TRUE;
 }
 
 _Bool pawnCanMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
@@ -363,7 +287,7 @@ _Bool pawnCanMove(PieceInBoard **pieceBoard, Column startX, int startY, Column e
         }
     }
 
-    if (pieceHasNoObstacle(pieceBoard, startX, startY, endX, endY, player) == FALSE) {
+    if (hubPieceHasNoObstacle(pieceBoard, startX, startY, endX, endY, player) == FALSE) {
         return FALSE;
     }
 
@@ -406,7 +330,7 @@ _Bool bishopCanMove(PieceInBoard **pieceBoard, Column startX, int startY, Column
 void bishopMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
 	if (pieceBoard[startX][startY].type == WHITE_BISHOP || pieceBoard[startX][startY].type == BLACK_BISHOP) {
     	if (bishopCanMove(pieceBoard,startX, startY, endX, endY, player)) {
-    	    if (pieceHasNoObstacle(pieceBoard,startX,startY,endX,endY, player)) {
+    	    if (hubPieceHasNoObstacle(pieceBoard,startX,startY,endX,endY, player)) {
     	        pieceMove(pieceBoard, startX, startY, endX, endY, player);
     	    }
     	} else {
@@ -415,7 +339,7 @@ void bishopMove(PieceInBoard **pieceBoard, Column startX, int startY, Column end
 	}
 }
 
-_Bool rookCanMove (Column startX, int startY, Column endX, int endY) {
+_Bool rookCanMove(Column startX, int startY, Column endX, int endY) {
     if (!((startX == endX && startY != endY) || (startY == endY && startX != endX))) {
         return FALSE;
     }
@@ -423,14 +347,53 @@ _Bool rookCanMove (Column startX, int startY, Column endX, int endY) {
     return TRUE;
 }
 
-void rookMove (Column startX, int startY, Column endX, int endY , PieceInBoard **pieceBoard, Player player) {
+void rookMove(Column startX, int startY, Column endX, int endY , PieceInBoard **pieceBoard, Player player) {
     if (pieceBoard[startX][startY].type == WHITE_ROOK || pieceBoard[startX][startY].type == BLACK_ROOK) {
         if (rookCanMove(startX, startY, endX, endY)) {
-            if (pieceHasNoObstacle(pieceBoard,startX,startY,endX,endY, player)) {
+            if (hubPieceHasNoObstacle(pieceBoard,startX,startY,endX,endY, player)) {
                 if (pieceBoard[startX][startY].hasMoved == FALSE) {
                     pieceChangeState(pieceBoard, startX, startY);
                 }
                 pieceMove(pieceBoard, startX, startY, endX, endY, player);
+            }
+        } else {
+            printf("Wrong position, try again from the start!\n");
+        }
+    }
+}
+
+
+_Bool knightCanMove(PieceInBoard **pieceBoard,Column startX, int startY, Column endX, int endY, Player player) {
+    if (!(abs(startX - endX) == 2 && abs(startY - endY) == 1 || (abs(startX - endX) == 1 && abs(startY - endY) == 2))) {
+        return FALSE;
+    }
+    return TRUE;
+}
+
+void knightMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
+    if (pieceBoard[startX][startY].type == WHITE_KNIGHT || pieceBoard[startX][startY].type == BLACK_KNIGHT) {
+        if (knightCanMove(pieceBoard,startX, startY,endX, endY, player)) {
+            if (hubPieceHasNoObstacle(pieceBoard,startX,startY,endX,endY, player)) {
+                pieceMove(pieceBoard,startX, startY,endX, endY, player);
+            }
+        } else {
+            printf("Wrong position, try again from the start!\n");
+        }
+    }
+}
+
+_Bool queenCanMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
+    if (!(rookCanMove(startX, startY, endX, endY) || bishopCanMove(pieceBoard, startX, startY, endX, endY, player))) {
+        return FALSE;
+    }
+    return TRUE;
+}
+
+void queenMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
+    if (pieceBoard[startX][startY].type == WHITE_QUEEN || pieceBoard[startX][startY].type == BLACK_QUEEN) {
+        if (queenCanMove(pieceBoard,startX, startY,endX, endY, player)) {
+            if (hubPieceHasNoObstacle(pieceBoard,startX, startY,endX, endY, player)) {
+                pieceMove(pieceBoard,startX, startY,endX, endY, player);
             }
         } else {
             printf("Wrong position, try again from the start!\n");
@@ -449,7 +412,7 @@ _Bool kingCanMove(PieceInBoard **pieceBoard,Column startX, int startY, Column en
 void kingMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
   	if (pieceBoard[startX][startY].type == WHITE_KING || pieceBoard[startX][startY].type == BLACK_KING) {
         if (kingCanMove(pieceBoard,startX, startY, endX, endY, player)) {
-            if (pieceHasNoObstacle(pieceBoard,startX,startY,endX,endY, player)) {
+            if (hubPieceHasNoObstacle(pieceBoard,startX,startY,endX,endY, player)) {
                 if (pieceBoard[startX][startY].hasMoved == FALSE) {
                     pieceChangeState(pieceBoard, startX, startY);
                 }
@@ -461,7 +424,7 @@ void kingMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX,
     }
 }
 
-void pieceIsPlaying(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
+void hubPieceIsPlaying(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
 	switch (pieceBoard[startX][startY].type) {
 	    case WHITE_PAWN:
         case BLACK_PAWN:
@@ -480,7 +443,7 @@ void pieceIsPlaying(PieceInBoard **pieceBoard, Column startX, int startY, Column
 
         case WHITE_QUEEN:
         case BLACK_QUEEN:
-
+            queenMove(pieceBoard, startX, startY, endX, endY, player);
 			break;
 
         case WHITE_KNIGHT:
@@ -499,23 +462,155 @@ void pieceIsPlaying(PieceInBoard **pieceBoard, Column startX, int startY, Column
     }
 }
 
-_Bool canPromotePawn(PieceInBoard **pieceBoard, int endY) {
-    if (endY == 7 || endY == 0) {
-        for (int i = A; i < H; i++) {
-            if (pieceBoard[i][endY].type == WHITE_PAWN || pieceBoard[i][endY].type == BLACK_PAWN) {
-                return TRUE;
+_Bool pieceCanEatKing(PieceInBoard **pieceBoard, Player player) {
+    Position kingPos = kingIsHere(pieceBoard, player);
+    Column kingCurrentPosX = kingPos.x;
+    int kingCurrentPosY = kingPos.y;
+    for (int row = 7; row >= 0; row--) {
+        for (int col = 0; col < 8; col++) {
+            if (player == PLAYER1 && definePieceTeam(pieceBoard, col, row) == WHITE_TEAM && definePieceTeam(pieceBoard, col, row) != NO_TEAM) {
+                if (hubPieceCanEatKing(pieceBoard, col, row, kingCurrentPosX, kingCurrentPosY, player) == TRUE) {
+                    if (hubPieceHasNoObstacle(pieceBoard, col, row, kingCurrentPosX, kingCurrentPosY, player)) {
+                        return TRUE;
+                    }
+                }
+            } else if (player == PLAYER2 && definePieceTeam(pieceBoard, col, row) == BLACK_TEAM && definePieceTeam(pieceBoard, col, row) != NO_TEAM) {
+                if (hubPieceCanEatKing(pieceBoard, col, row, kingCurrentPosX, kingCurrentPosY, player) == TRUE) {
+                    if (hubPieceHasNoObstacle(pieceBoard, col, row, kingCurrentPosX, kingCurrentPosY, player)) {
+                        return TRUE;
+                    }
+                }
             }
         }
     }
     return FALSE;
 }
 
-_Bool compareCharWithList(char * selectPiece, char * list) {
-    char * oneLetter;
-    for (int i = 0; i < 4; i++) {
-        oneLetter = &list[i];
-        if (strcmp(oneLetter, &selectPiece[0])) {
-            return TRUE;
+void displayIfInChest(PieceInBoard **pieceBoard,Player player) {
+    if (pieceCanEatKing(pieceBoard, player)) {
+        if (player == PLAYER1) {
+            printf("Player 2 ! in Chess \n");
+            printf("You have to move your King\n");
+        } else {
+            printf("Player 1 ! in Chess \n");
+            printf("You have to move your King\n");
+        }
+    }
+}
+
+_Bool hubPieceCanEatKing(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
+    switch (pieceBoard[startX][startY].type) {
+        case WHITE_PAWN:
+        case BLACK_PAWN:
+            if (pawnCanEat(startX, startY,endX, endY)) {
+                return TRUE;
+            }
+            return FALSE;
+
+        case WHITE_KING:
+        case BLACK_KING:
+            return FALSE;
+
+        case WHITE_BISHOP:
+        case BLACK_BISHOP:
+            if (bishopCanMove(pieceBoard, startX, startY, endX, endY,player)) {
+                return TRUE;
+            }
+            return FALSE;
+
+        case WHITE_QUEEN:
+        case BLACK_QUEEN:
+            if (queenCanMove(pieceBoard, startX, startY, endX, endY,player)) {
+                return TRUE;
+            }
+            return FALSE;
+
+        case WHITE_KNIGHT:
+        case BLACK_KNIGHT:
+            if (knightCanMove(pieceBoard, startX, startY, endX, endY,player)) {
+                return TRUE;
+            }
+        return FALSE;
+
+        case WHITE_ROOK:
+        case BLACK_ROOK:
+                if (rookCanMove(startX, startY, endX, endY)) {
+                    return TRUE;
+            }
+        return FALSE;
+
+        case EMPTY:
+            return FALSE;
+
+        default:
+            printf("You have to be a piece for try to eat the KING.\n");
+            return FALSE;
+    }
+}
+
+_Bool hubPieceCanMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
+    switch (pieceBoard[startX][startY].type) {
+        case WHITE_PAWN:
+        case BLACK_PAWN:
+            if (pawnCanMove(pieceBoard, startX, startY,endX, endY, player)) {
+                return TRUE;
+            }
+
+        return FALSE;
+
+        case WHITE_KING:
+        case BLACK_KING:
+            if (kingCanMove(pieceBoard, startX, startY,endX, endY, player)) {
+                return TRUE;
+            }
+        return FALSE;
+
+        case WHITE_BISHOP:
+        case BLACK_BISHOP:
+            if (bishopCanMove(pieceBoard, startX, startY, endX, endY,player)) {
+                return TRUE;
+            }
+        return FALSE;
+
+        case WHITE_QUEEN:
+        case BLACK_QUEEN:
+            if (queenCanMove(pieceBoard, startX, startY, endX, endY,player)) {
+                return TRUE;
+            }
+
+            return FALSE;
+
+        case WHITE_KNIGHT:
+        case BLACK_KNIGHT:
+            if (knightCanMove(pieceBoard, startX, startY, endX, endY,player)) {
+                return TRUE;
+            }
+
+        return FALSE;
+
+        case WHITE_ROOK:
+        case BLACK_ROOK:
+            if (rookCanMove(startX, startY, endX, endY)) {
+                return TRUE;
+            }
+
+        return FALSE;
+
+        case EMPTY:
+            return FALSE;
+
+        default:
+            printf("Wrong piece\n");
+        return FALSE;
+    }
+}
+
+_Bool canPromotePawn(PieceInBoard **pieceBoard, int endY) {
+    if (endY == 7 || endY == 0) {
+        for (int i = A; i < H; i++) {
+            if (pieceBoard[i][endY].type == WHITE_PAWN || pieceBoard[i][endY].type == BLACK_PAWN) {
+                return TRUE;
+            }
         }
     }
     return FALSE;
@@ -578,158 +673,201 @@ void promotePawn(PieceInBoard **pieceBoard, Column endX, int endY, Player player
     }
 }
 
-_Bool knightCanMove (PieceInBoard **pieceBoard,Column startX, int startY, Column endX, int endY, Player player) {
-    if (!(abs(startX - endX) == 2 && abs(startY - endY) == 1 || (abs(startX - endX) == 1 && abs(startY - endY) == 2))) {
+int lastPawnMove (int startY, int endY) {
+    return abs(endY-startY);
+}
+
+_Bool canEnPassantCapture(PieceInBoard **pieceBoard, Column startX, int startY, int endY) {
+    static int resultBlack = 0;
+    static int resultWhite = 0;
+
+    if (pieceBoard[startX][startY].type == BLACK_PAWN) {
+        if (lastPawnMove(startY, endY) == 2) {
+            resultBlack = 2;
+        } else {
+            resultBlack = 1;
+        }
+    }
+
+    if (pieceBoard[startX][startY].type == WHITE_PAWN) {
+        if (lastPawnMove(startY, endY) == 2) {
+            resultWhite = 2;
+        } else {
+            resultWhite = 1;
+        }
+    }
+
+    if (resultWhite == 2 && resultBlack == 1) {
+        if (startX - 1 >= 0 && startX - 1 <= 8) {
+            if (startX - 1 < 1) {
+                if (pieceBoard[startX - 1][startY].type == WHITE_PAWN) {
+                    return TRUE;
+                }
+            } else {
+                return FALSE;
+            }
+        } else if (startX + 1 > 7) {
+            if (pieceBoard[startX + 1][startY].type == WHITE_PAWN) {
+                return TRUE;
+            }
+        } else {
+            return FALSE;
+        }
+
         return FALSE;
     }
-    return TRUE;
-}
 
-void knightMove (PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
-    if (pieceBoard[startX][startY].type == WHITE_KNIGHT || pieceBoard[startX][startY].type == BLACK_KNIGHT) {
-        if (knightCanMove(pieceBoard,startX, startY,endX, endY, player)) {
-            if (pieceHasNoObstacle(pieceBoard,startX,startY,endX,endY, player)) {
-                pieceMove(pieceBoard,startX, startY,endX, endY, player);
+    if (resultBlack == 2 && resultWhite == 1) {
+        if (startX - 1 >= 0 && startX - 1 <= 8) {
+            if (startX - 1 < 1) {
+                if (pieceBoard[startX - 1][startY].type == BLACK_PAWN) {
+                    return TRUE;
+                }
+            } else {
+                return FALSE;
+            }
+        } else if (startX + 1 > 7) {
+            if (pieceBoard[startX + 1][startY].type == BLACK_PAWN) {
+                return TRUE;
             }
         } else {
-            printf("Wrong position, try again from the start!\n");
-        }
-    }
-}
-
-void displayIfInChest(PieceInBoard **pieceBoard,Player player) {
-    if (pieceCanEatKing(pieceBoard, player)) {
-        if (player == PLAYER1) {
-            printf("Player 2 ! in Chess \n");
-            printf("You have to move your King\n");
-        } else {
-            printf("Player 1 ! in Chess \n");
-            printf("You have to move your King\n");
-        }
-    }
-}
-
-_Bool pieceCanEatKing(PieceInBoard **pieceBoard, Player player) {
-    Position kingPos = kingIsHere(pieceBoard, player);
-    Column kingCurrentPosX = kingPos.x;
-    int kingCurrentPosY = kingPos.y;
-    for (int row = 7; row >= 0; row--) {
-        for (int col = 0; col < 8; col++) {
-            if (player == PLAYER1 && definePieceTeam(pieceBoard, col, row) == WHITE_TEAM && definePieceTeam(pieceBoard, col, row) != NO_TEAM) {
-                if (hubPieceCanEatKing(pieceBoard, col, row, kingCurrentPosX, kingCurrentPosY, player) == TRUE) {
-                    if (pieceHasNoObstacle(pieceBoard, col, row, kingCurrentPosX, kingCurrentPosY, player)) {
-                        return TRUE;
-                    }
-                }
-            } else if (player == PLAYER2 && definePieceTeam(pieceBoard, col, row) == BLACK_TEAM && definePieceTeam(pieceBoard, col, row) != NO_TEAM) {
-                if (hubPieceCanEatKing(pieceBoard, col, row, kingCurrentPosX, kingCurrentPosY, player) == TRUE) {
-                    if (pieceHasNoObstacle(pieceBoard, col, row, kingCurrentPosX, kingCurrentPosY, player)) {
-                        return TRUE;
-                    }
-                }
-            }
+            return FALSE;
         }
     }
     return FALSE;
 }
 
-_Bool hubPieceCanEatKing(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
-    switch (pieceBoard[startX][startY].type) {
-        case WHITE_PAWN:
-        case BLACK_PAWN:
-            if (pawnCanEat(startX, startY,endX, endY)) {
-                return TRUE;
-            }
-            return FALSE;
+void pawnEatWithEnPassant(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
+    if (player == PLAYER1) {
+        pieceBoard[endX][endY - 1].type = EMPTY;
+        pieceBoard[endX][endY - 1].isAlive = FALSE;
+    }
 
-        case WHITE_KING:
-        case BLACK_KING:
-            return FALSE;
-
-        case WHITE_BISHOP:
-        case BLACK_BISHOP:
-            if (bishopCanMove(pieceBoard, startX, startY, endX, endY,player)) {
-                return TRUE;
-            }
-            return FALSE;
-
-        case WHITE_QUEEN:
-        case BLACK_QUEEN:
-            /*if (queenCanMove(pieceBoard, startX, startY, endX, endY,player)) {
-                return TRUE;
-            }
-            return FALSE;*/
-
-        case WHITE_KNIGHT:
-        case BLACK_KNIGHT:
-            /*if (knightCanMove(pieceBoard, startX, startY, endX, endY,player)) {
-                return TRUE;
-            }
-        return FALSE;*/
-
-        case WHITE_ROOK:
-        case BLACK_ROOK:
-                if (rookCanMove(startX, startY, endX, endY)) {
-                    return TRUE;
-            }
-        return FALSE;
-
-        case EMPTY:
-            return FALSE;
-
-        default:
-            printf("You have to be a piece for try to eat the KING.\n");
-            return FALSE;
+    else if (player == PLAYER2) {
+        pieceBoard[endX][endY + 1].type = EMPTY;
+        pieceBoard[endX][endY + 1].isAlive = FALSE;
     }
 }
 
-_Bool hubPieceCanMove(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
-    switch (pieceBoard[startX][startY].type) {
-        case WHITE_PAWN:
-        case BLACK_PAWN:
-            if (pawnCanMove(pieceBoard, startX, startY,endX, endY, player)) {
-                return TRUE;
-            }
+char * defineAnswerCastling() {
+    char * answer = malloc (3 * sizeof(char));
+    while (strcmp(answer, "YES") != 0) {
+        printf("You can castling your King with the near Rook. Do you want castling ? yes or no : \n");
+        scanf(" %3s", answer);
+        uppercase(answer);
+        if (strcmp(answer, "NO") == 0) {
+            return answer;
+        }
+    }
+    return answer;
+}
+
+_Bool canCastling(PieceInBoard **pieceBoard, Column startX, int startY, Player player) {
+    if (pieceCanEatKing(pieceBoard, player) == TRUE) {
         return FALSE;
+    }
 
-        case WHITE_KING:
-        case BLACK_KING:
-            if (kingCanMove(pieceBoard, startX, startY,endX, endY, player)) {
+    if (player == PLAYER1) {
+        if (pieceBoard[4][0].type != WHITE_KING && pieceBoard[4][0].hasMoved == TRUE) {
+            return FALSE;
+        }
+
+        if (pieceBoard[0][0].type == WHITE_ROOK && pieceBoard[0][0].hasMoved == TRUE && pieceBoard[7][0].type == WHITE_ROOK && pieceBoard[7][0].hasMoved == TRUE) {
+            return FALSE;
+        }
+
+        if (pieceBoard[0][0].type == WHITE_ROOK && pieceBoard[0][0].hasMoved == FALSE && pieceBoard[1][0].type == EMPTY && pieceBoard[2][0].type == EMPTY && pieceBoard[3][0].type == EMPTY && ((startX == 0 && startY == 0) || (startX == 4 && startY == 0))) {
                 return TRUE;
-            }
-        return FALSE;
+        }
 
-        case WHITE_BISHOP:
-        case BLACK_BISHOP:
-            if (bishopCanMove(pieceBoard, startX, startY, endX, endY,player)) {
+        if (pieceBoard[7][0].type == WHITE_ROOK && pieceBoard[7][0].hasMoved == FALSE && pieceBoard[6][0].type == EMPTY && pieceBoard[5][0].type == EMPTY && ((startX == 7 && startY == 0) || (startX == 4 && startY == 0))) {
                 return TRUE;
-            }
-        return FALSE;
+        }
 
-        case WHITE_QUEEN:
-        case BLACK_QUEEN:
-            /*if (queenCanMove(pieceBoard, startX, startY, endX, endY,player)) {
+        return FALSE;
+    }
+
+    if (player == PLAYER2) {
+        if (pieceBoard[4][7].type != BLACK_KING && pieceBoard[4][7].hasMoved == TRUE) {
+            return FALSE;
+        }
+
+        if (pieceBoard[7][7].type == BLACK_ROOK && pieceBoard[7][7].hasMoved == TRUE && pieceBoard[0][7].type == BLACK_ROOK && pieceBoard[0][7].hasMoved == TRUE) {
+            return FALSE;
+        }
+
+        if (pieceBoard[0][7].type == BLACK_ROOK && pieceBoard[0][7].hasMoved == FALSE && pieceBoard[1][7].type == EMPTY && pieceBoard[2][7].type == EMPTY && pieceBoard[3][7].type == EMPTY &&((startX == 0 && startY == 7) || (startX == 4 && startY == 7))) {
                 return TRUE;
-            }
+        }
 
-            return FALSE;*/
+        if (pieceBoard[7][7].type == BLACK_ROOK && pieceBoard[7][7].hasMoved == FALSE && pieceBoard[6][7].type == EMPTY && pieceBoard[5][7].type == EMPTY && ((startX == 7 && startY == 7) || (startX == 4 && startY == 7))) {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
 
-        case WHITE_KNIGHT:
-        case BLACK_KNIGHT:
-            if (knightCanMove(pieceBoard, startX, startY, endX, endY,player)) {
-                return TRUE;
-            }
+Castling whichCastling(PieceInBoard **pieceBoard, Player player) {
+    if (player == PLAYER1) {
+        if (pieceBoard[1][0].type == EMPTY && pieceBoard[2][0].type == EMPTY && pieceBoard[3][0].type == EMPTY) {
+            return WHITE_QUEEN_SIDE_CASTLING;
+
+        } else if (pieceBoard[6][0].type == EMPTY && pieceBoard[5][0].type == EMPTY) {
+            return WHITE_KING_SIDE_CASTLING;
+
+        }
+    } else {
+        if (pieceBoard[1][7].type == EMPTY && pieceBoard[2][7].type == EMPTY && pieceBoard[3][7].type == EMPTY) {
+            return BLACK_QUEEN_SIDE_CASTLING;
+
+        } else if (pieceBoard[6][7].type == EMPTY && pieceBoard[5][7].type == EMPTY) {
+            return BLACK_KING_SIDE_CASTLING;
+        }
+    }
+    return NO_SIDE_CASTLING;
+}
+
+_Bool decideCastling(PieceInBoard **pieceBoard, Player player) {
+    if (whichCastling(pieceBoard, player) == NO_SIDE_CASTLING) {
         return FALSE;
+    }
+    return TRUE;
+}
 
-        case WHITE_ROOK:
-        case BLACK_ROOK:
-            if (rookCanMove(startX, startY, endX, endY)) {
-                return TRUE;
-            }
-        return FALSE;
+void castling(PieceInBoard **pieceBoard, Player player) {
+    Castling howCastling = whichCastling(pieceBoard, player);
+    if (decideCastling(pieceBoard, player)){
+        if (howCastling == WHITE_QUEEN_SIDE_CASTLING) {
+            pieceBoard[2][0].type = WHITE_KING;
+            pieceBoard[2][0].hasMoved = TRUE;
+            pieceBoard[3][0].type = WHITE_ROOK;
+            pieceBoard[3][0].hasMoved = TRUE;
+            pieceBoard[4][0].type = EMPTY;
+            pieceBoard[0][0].type = EMPTY;
 
-        default:
-            printf("Wrong piece\n");
-        return FALSE;
+        } else if (howCastling == WHITE_KING_SIDE_CASTLING) {
+            pieceBoard[6][0].type = WHITE_KING;
+            pieceBoard[6][0].hasMoved = TRUE;
+            pieceBoard[5][0].type = WHITE_ROOK;
+            pieceBoard[5][0].hasMoved = TRUE;
+            pieceBoard[4][0].type = EMPTY;
+            pieceBoard[7][0].type = EMPTY;
+
+        } else if (howCastling == BLACK_QUEEN_SIDE_CASTLING) {
+            pieceBoard[2][7].type = BLACK_KING;
+            pieceBoard[2][7].hasMoved = TRUE;
+            pieceBoard[3][7].type = BLACK_ROOK;
+            pieceBoard[3][7].hasMoved = TRUE;
+            pieceBoard[4][7].type = EMPTY;
+            pieceBoard[0][7].type = EMPTY;
+
+        } else if (howCastling == BLACK_KING_SIDE_CASTLING) {
+            pieceBoard[6][7].type = BLACK_KING;
+            pieceBoard[6][7].hasMoved = TRUE;
+            pieceBoard[5][7].type = BLACK_ROOK;
+            pieceBoard[5][7].hasMoved = TRUE;
+            pieceBoard[4][7].type = EMPTY;
+            pieceBoard[0][7].type = EMPTY;
+        }
     }
 }

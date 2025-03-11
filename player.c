@@ -12,3 +12,14 @@ char * defineNextPlay() {
 
 	return answer;
 }
+
+_Bool compareCharWithList(char * selectPiece, char * list) {
+	char * oneLetter;
+	for (int i = 0; i < 4; i++) {
+		oneLetter = &list[i];
+		if (strcmp(oneLetter, &selectPiece[0])) {
+			return TRUE;
+		}
+	}
+	return FALSE;
+}

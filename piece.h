@@ -20,7 +20,8 @@ typedef enum {
 
 typedef enum {
     WHITE_TEAM,
-    BLACK_TEAM
+    BLACK_TEAM,
+    NO_TEAM
 } Team;
 
 char pieceToString(Piece piece);

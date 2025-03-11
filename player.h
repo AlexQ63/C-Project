@@ -8,4 +8,6 @@ typedef enum {
 
 char * defineNextPlay();
 
+_Bool compareCharWithList(char * selectPiece, char * list);
+
 #endif //PLAYER_H

@@ -139,43 +139,54 @@ _Bool positionIsInTheBoard(Column x, int y) {
 void displayWhichPiece(PieceInBoard **pieceBoard, Column x, int y) {
     switch (pieceBoard[x][y].type) {
         case WHITE_PAWN:
-            printf("You have select : WHITE_PAWN ");
+            printf("You have select : WHITE_PAWN \n");
         break;
+
         case WHITE_KING:
-            printf("You have select : WHITE_KING ");
+            printf("You have select : WHITE_KING \n");
         break;
+
         case WHITE_QUEEN:
-            printf("You have select : WHITE_QUEEN ");
+            printf("You have select : WHITE_QUEEN \n");
         break;
+
         case WHITE_BISHOP:
-            printf("You have select : WHITE_BISHOP ");
+            printf("You have select : WHITE_BISHOP \n");
         break;
+
         case WHITE_KNIGHT:
-            printf("You have select : WHITE_KNIGHT ");
+            printf("You have select : WHITE_KNIGHT \n");
         break;
+
         case WHITE_ROOK:
-            printf("You have select : WHITE_ROOK ");
+            printf("You have select : WHITE_ROOK \n");
         break;
+
         case BLACK_PAWN:
-            printf("You have select : BLACK_PAWN ");
+            printf("You have select : BLACK_PAWN \n");
         break;
+
         case BLACK_KING:
-            printf("You have select : BLACK_KING ");
+            printf("You have select : BLACK_KING \n");
         break;
+
         case BLACK_QUEEN:
-            printf("You have select : BLACK_QUEEN ");
+            printf("You have select : BLACK_QUEEN \n");
         break;
         case BLACK_BISHOP:
-            printf("You have select : BLACK_BISHOP ");
+            printf("You have select : BLACK_BISHOP \n");
         break;
+
         case BLACK_KNIGHT:
-            printf("You have select : BLACK_KNIGHT ");
+            printf("You have select : BLACK_KNIGHT \n");
         break;
+
         case BLACK_ROOK:
-            printf("You have select : BLACK_ROOK ");
+            printf("You have select : BLACK_ROOK \n");
         break;
+
         default:
-            printf("You have select : NOTHING ");
+            printf("You have select : NOTHING \n");
         break;
         //TODO faire une vrai gestion d'erreur ici, car on peut selectionner NOTHING et jouer avec.
     }
@@ -206,9 +217,3 @@ Position kingIsHere(PieceInBoard **pieceBoard, Player player) {
         }
     }
 }
-
-
-
-/*void kingIsInChess(PieceInBoard **pieceBoard, Column startX, int startY, Column endX, int endY, Player player) {
-
-}*/

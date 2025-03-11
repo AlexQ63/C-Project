@@ -16,12 +16,16 @@ void uppercase(char *string) {
 }
 
 Position playerAskPosition() {
-    // TODO si les coordonnés ne font pas 2s ça crash (après une erreur)
     char coordonate[3];
-    printf("Enter Position Column and Row (ex : C5) : ");
-    scanf("%2s", coordonate);
-    uppercase(coordonate);
-    /*clearBuffer();*/
+    do {
+        printf("Enter Position Column and Row (ex : C5) : ");
+        scanf("%2s", coordonate);
+        uppercase(coordonate);
+        if (strlen(coordonate) != 2) {
+            printf("Wrong Input, put another one\n");
+        }
+
+    } while (strlen(coordonate) != 2);
     Position pos;
     pos.x = coordonate[0] - 'A';
     pos.y = coordonate[1] - '1';
@@ -40,63 +44,104 @@ _Bool validMove(PieceInBoard **pieceBoard, Column startX, int startY, Column end
 }
 
 void playerPlay(Player player, PieceInBoard **pieceBoard) {
-    if (player == PLAYER1) {
-        printf("Player 1 turn, let's play.\n");
-    }
-    else if (player == PLAYER2) {
-        printf("Player 2 turn, let's play.\n");
-    }
+    while (canGoNextMove == FALSE) {
 
-    Position start = playerAskPosition();
-    Column startX = start.x;
-    int startY = start.y;
+        if (player == PLAYER1) {
+            printf("Player 1 turn, let's play.\n");
+        }
+        else if (player == PLAYER2) {
+            printf("Player 2 turn, let's play.\n");
+        }
 
-    while (!positionIsInTheBoard(startX, startY)) {
-        printf("Invalid position\n, put another position in A - H and 1 - 8\n");
-        start = playerAskPosition();
-        startX = start.x;
-        startY = start.y;
-    }
+        Position start = playerAskPosition();
+        Column startX = start.x;
+        int startY = start.y;
 
-    while (playerPlayHisPiece(pieceBoard, startX, startY, player) == FALSE) {
-        printf("You have to play again. \n");
-        start = playerAskPosition();
-        startX = start.x;
-        startY = start.y;
-    }
-    displayWhichPiece(pieceBoard, startX, startY);
+        while (!positionIsInTheBoard(startX, startY)) {
+            printf("Invalid position\n, put another position in A - H and 1 - 8\n");
+            start = playerAskPosition();
+            startX = start.x;
+            startY = start.y;
+        }
 
-    char *answer = defineNextPlay();
-    if (strcmp(answer, "no") == 0) {
-        printf("You have to play again, from the start. Select the first coordinate : ");
-        return;
-    }
-    free(answer);
-    Position end = playerAskPosition();
-    Column endX = end.x;
-    int endY = end.y;
+        while (playerPlayHisPiece(pieceBoard, startX, startY, player) == FALSE) {
+            printf("You have to play again. \n");
+            start = playerAskPosition();
+            startX = start.x;
+            startY = start.y;
+        }
 
-    while (!positionIsInTheBoard(startX, startY)) {
-        printf("Invalid position\n, put another position in A - H and 1 - 8\n");
-        end = playerAskPosition();
-        endX = end.x;
-        endY = end.y;
-    }
+        while (pieceBoard[startX][startY].type == EMPTY) {
+            if (hubPieceCanMove(pieceBoard, startX, startY, startX, startY, player) == FALSE) {
+                printf("You can't play this type of piece. You have to select an real piece.\n");
+                start = playerAskPosition();
+                startX = start.x;
+                startY = start.y;
+            }
+        }
 
-    while (playerPlayHisPiece(pieceBoard, startX, startY, player) == FALSE) {
-        printf("You have to play again. \n");
-        end = playerAskPosition();
-        endX = end.x;
-        endY = end.y;
-    }
+        displayWhichPiece(pieceBoard, startX, startY);
 
-    lastPawnMove(startY, endY);
+        if (player == PLAYER1 && pieceBoard[startX][startY].type == WHITE_KING || pieceBoard[startX][startY].type == WHITE_ROOK) {
+            if (canCastling(pieceBoard, startX, startY, player)) {
+                char * answer = defineAnswerCastling();
+                if (strcmp(answer, "YES") == 0) {
+                    castling(pieceBoard, player);
+                    canGoNextMove = TRUE;
+                    break;
+                } else {
+                    free(answer);
+                    continue;
+                }
+            }
 
-    pieceIsPlaying(pieceBoard, startX, startY, endX, endY, player);
+        } else if (player == PLAYER2  && pieceBoard[startX][startY].type == BLACK_KING || pieceBoard[startX][startY].type == BLACK_ROOK) {
+            if (canCastling(pieceBoard, startX, startY, player)) {
+                char * answer = defineAnswerCastling();
+                if (strcmp(answer, "YES") == 0) {
+                    castling(pieceBoard, player);
+                    canGoNextMove = TRUE;
+                    break;
+                } else {
+                    free(answer);
+                    return;
+                }
+            }
+        }
 
-    displayIfInChest(pieceBoard, player);
-    if (validMove(pieceBoard, startX, startY, endX, endY)) {
-        canGoNextMove = TRUE;
+        char *answer = defineNextPlay();
+        if (strcmp(answer, "no") == 0) {
+            printf("You have to play again, from the start. Select the first coordinate : ");
+            free(answer);
+            return;
+        }
+        free(answer);
+        Position end = playerAskPosition();
+        Column endX = end.x;
+        int endY = end.y;
+
+        while (!positionIsInTheBoard(startX, startY)) {
+            printf("Invalid position\n, put another position in A - H and 1 - 8\n");
+            end = playerAskPosition();
+            endX = end.x;
+            endY = end.y;
+        }
+
+        while (playerPlayHisPiece(pieceBoard, startX, startY, player) == FALSE) {
+            printf("You have to play again. \n");
+            end = playerAskPosition();
+            endX = end.x;
+            endY = end.y;
+        }
+
+        lastPawnMove(startY, endY);
+
+        hubPieceIsPlaying(pieceBoard, startX, startY, endX, endY, player);
+
+        displayIfInChest(pieceBoard, player);
+        if (validMove(pieceBoard, startX, startY, endX, endY)) {
+            canGoNextMove = TRUE;
+        }
     }
 }
 
@@ -111,7 +156,7 @@ _Bool blackKingIsAlive(PieceInBoard **board) {
     deleteBoard(board);
     return FALSE;
 }
-// TODO simplifier le code de ces 2 fonctions.
+
 _Bool whiteKingIsAlive(PieceInBoard **board) {
     for (int i = 7; i >= 0; i--) {
         for (int j = 0; j < 8; j++) {
@@ -138,12 +183,10 @@ _Bool definePlayerWin(PieceInBoard **pieceBoard) {
     return TRUE;
 }
 
-//Faire en sorte de reproduire la logique des pat sur la logique des échecs pour gérer le cas où lorsqu'on déplace une pièce, une autre pièce peut mettre en échec le roi.
 _Bool playerBeingStalemate(PieceInBoard **pieceBoard, Player player) {
     static _Bool ableToMove = FALSE;
     for (int row = 7; row >= 0; row--) {
         for (int col = 0; col < 8; col++) {
-            // TODO définir les coups dans des listes et parcourir cette liste avec une boucle for
             Column right = row+1;
             Column left = row-1;
             int up = col+1;
@@ -151,20 +194,28 @@ _Bool playerBeingStalemate(PieceInBoard **pieceBoard, Player player) {
             if (player == PLAYER1 && definePieceTeam(pieceBoard, row, col) == WHITE_TEAM) {
                 if (hubPieceCanMove(pieceBoard, col, row, col, right, player)) {
                     ableToMove = TRUE;
+
                 } else if (hubPieceCanMove(pieceBoard, col, row, col, left, player)) {
                     ableToMove = TRUE;
+
                 } else if (hubPieceCanMove(pieceBoard, col , row, up, row, player)) {
                     ableToMove = TRUE;
+
                 } else if (hubPieceCanMove(pieceBoard, col, row, down, row, player)) {
                     ableToMove = TRUE;
+
                 } else if (hubPieceCanMove(pieceBoard, col, row, down, left, player)) {
                     ableToMove = TRUE;
+
                 } else if (hubPieceCanMove(pieceBoard, col, row, down, right, player)) {
                     ableToMove = TRUE;
+
                 } else if (hubPieceCanMove(pieceBoard, col, row, up, left, player)) {
                     ableToMove = TRUE;
+
                 } else if (hubPieceCanMove(pieceBoard, col, row, up, right, player)) {
                     ableToMove = TRUE;
+
                 } if (ableToMove == TRUE) {
                     return FALSE;
                 }
@@ -172,20 +223,28 @@ _Bool playerBeingStalemate(PieceInBoard **pieceBoard, Player player) {
             } else if (player == PLAYER2 && definePieceTeam(pieceBoard, col, row) == BLACK_TEAM) {
                 if (hubPieceCanMove(pieceBoard, col, row, col, right, player)) {
                     ableToMove = TRUE;
+
                 } else if (hubPieceCanMove(pieceBoard, col, row, col, left, player)) {
                     ableToMove = TRUE;
+
                 } else if (hubPieceCanMove(pieceBoard, col , row, down, row, player)) {
                     ableToMove = TRUE;
+
                 } else if (hubPieceCanMove(pieceBoard, col, row, up, row, player)) {
                     ableToMove = TRUE;
+
                 } else if (hubPieceCanMove(pieceBoard, col, row, up, left, player)) {
                     ableToMove = TRUE;
+
                 } else if (hubPieceCanMove(pieceBoard, col, row, down, right, player)) {
                     ableToMove = TRUE;
+
                 } else if (hubPieceCanMove(pieceBoard, col, row, down, left, player)) {
                     ableToMove = TRUE;
+
                 } else if (hubPieceCanMove(pieceBoard, col, row, up, right, player)) {
                     ableToMove = TRUE;
+
                 }  if (ableToMove == TRUE) {
                     return FALSE;
                 }
