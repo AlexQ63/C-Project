@@ -9,7 +9,7 @@ Maquetage :
 	-Les définir. (utiliser un enum pour la lisibilité)
 
 •Position utilisateur: 
-	-Demandez des input en forme de int (la position de la pièce -> lui dire le type de pièce). demander ensuite de donner une seconde position (ATTENTION, faire vérifier la légitimité de la position) ou de cancel (si cancel, récursivité)
+	-Demandez des input en forme de int (la position de la pièce -> lui dire le type de pièce). demander ensuite de donner une seconde position (ATTENTION, faire vérifier la légitimité de la position) ou de cancel 
 	-Vérifiez si les input sont valides. (ne pas dépasser du board) -> le reste se fera sur les pièces.
 
 •Position pièce :	 
@@ -21,8 +21,3 @@ Maquetage :
 •Affichage : 
 	-Générer le board à chaque déplacement de pièces
 	-(Essayer de générer la couleur des pièces en dessous du board, avec le nom du joueur)
-	-(Essayez en cas d'échec et mat, d'effacer le board pour afficher un message au milieu "joueurwin"
-
-// On peut bouger la tour sur soit, sans bouger son axe x, se déplacer sur tout son axe y ou l'inverse
-// On peut bouger le cavalier sur soit 2 cases des x et 1 case en y (soit x+2 ou x-2 et y+1 ou y -1) soit l'inverse
-// On peut bouger la reine comme on bouge un fou et une tour
