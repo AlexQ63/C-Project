@@ -699,40 +699,32 @@ _Bool canEnPassantCapture(PieceInBoard **pieceBoard, Column startX, int startY, 
 
     if (resultWhite == 2 && resultBlack == 1) {
         if (startX - 1 >= 0 && startX - 1 <= 8) {
-            if (startX - 1 < 1) {
-                if (pieceBoard[startX - 1][startY].type == WHITE_PAWN) {
-                    return TRUE;
-                }
-            } else {
-                return FALSE;
+            if (pieceBoard[startX - 1][startY].type == WHITE_PAWN) {
+                return TRUE;
             }
-        } else if (startX + 1 > 7) {
+
+        } else if (startX + 1 >= 0 && startX + 1 <= 8) {
             if (pieceBoard[startX + 1][startY].type == WHITE_PAWN) {
                 return TRUE;
             }
-        } else {
             return FALSE;
         }
-
         return FALSE;
     }
 
     if (resultBlack == 2 && resultWhite == 1) {
         if (startX - 1 >= 0 && startX - 1 <= 8) {
-            if (startX - 1 < 1) {
-                if (pieceBoard[startX - 1][startY].type == BLACK_PAWN) {
-                    return TRUE;
-                }
-            } else {
-                return FALSE;
+            if (pieceBoard[startX - 1][startY].type == BLACK_PAWN) {
+                return TRUE;
             }
-        } else if (startX + 1 > 7) {
+
+        } else if (startX +1 >= 0 && startX + 1 <= 8) {
             if (pieceBoard[startX + 1][startY].type == BLACK_PAWN) {
                 return TRUE;
             }
-        } else {
             return FALSE;
         }
+        return FALSE;
     }
     return FALSE;
 }
@@ -859,7 +851,7 @@ void castling(PieceInBoard **pieceBoard, Player player) {
             pieceBoard[3][7].type = BLACK_ROOK;
             pieceBoard[3][7].hasMoved = TRUE;
             pieceBoard[4][7].type = EMPTY;
-            pieceBoard[0][7].type = EMPTY;
+            pieceBoard[7][7].type = EMPTY;
 
         } else if (howCastling == BLACK_KING_SIDE_CASTLING) {
             pieceBoard[6][7].type = BLACK_KING;

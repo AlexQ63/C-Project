@@ -110,7 +110,7 @@ void playerPlay(Player player, PieceInBoard **pieceBoard) {
         }
 
         char *answer = defineNextPlay();
-        if (strcmp(answer, "no") == 0) {
+        if (strcmp(answer, "NO") == 0) {
             printf("You have to play again, from the start. Select the first coordinate : ");
             free(answer);
             return;
