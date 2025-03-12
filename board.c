@@ -188,7 +188,6 @@ void displayWhichPiece(PieceInBoard **pieceBoard, Column x, int y) {
         default:
             printf("You have select : NOTHING \n");
         break;
-        //TODO faire une vrai gestion d'erreur ici, car on peut selectionner NOTHING et jouer avec.
     }
 }
 
